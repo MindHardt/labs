@@ -1,16 +1,19 @@
 ﻿using System;
 
-namespace Hello
+namespace Hello2
 {
     public class Message
     {
+        //У тебя дата и время, используем тип DateTime
         public string Date { get; set; }
         public int AmountMoney { get; set; }
+        //enum
         public string Operation { get; set; }
 
     }
     class Program
     {
+        //Нет причин выносить это в статическое поле, правильно будет передавать как аргумент
         static Message[]? data;
 
         public static int GetAmountMoney(string userDate)
@@ -19,6 +22,8 @@ namespace Hello
 
             for (int i = 0; i < data.Length; i++)
             {
+                //Методы располагаются в порядке своего появления, мне приходится
+                //листать вниз чтобы найти IsLateDate
                 if (IsLateDate(userDate, data[i].Date))
                 {
                     sum += DoOperaton(data[i], i);
@@ -34,6 +39,8 @@ namespace Hello
 
         public static bool IsLateDate(string userDate, string currentDate)
         {
+            //Тебе бы не пришлось так мучиться если бы ты использовал DateTime
+            //Это условие полный пиздец
             // Годы.
             if (int.Parse(userDate[..4]) == int.Parse(currentDate[..4]))
             {
@@ -92,6 +99,7 @@ namespace Hello
             else return false;
         }
 
+        //Именование метода
         public static int DoOperaton(Message message, int indexCurrentLine)
         {
             if (message.Operation == "in")
