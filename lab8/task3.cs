@@ -2,10 +2,13 @@
 using System.Diagnostics.Tracing;
 using System.Security.Cryptography;
 
-namespace Hello
+namespace Hello3
 {
     class Program
     {
+        //Result пишется с s)
+        //А еще это название непонятно. Почему это лист?
+        //Метод IsAnagram по всей логике должен принимать две строки
         public static bool IsAnagram(List<string> rez, string word)
         {
             bool isInRezult = true;
@@ -58,6 +61,7 @@ namespace Hello
         {
             string[] array = new string[5] { "code", "doce", "ecod", "framer", "frame" };
             List<string> list = array.ToList();
+            //А зачем так если можно объявить лист с инициализатором...
 
             List<string> rezult = new List<string>();
 
