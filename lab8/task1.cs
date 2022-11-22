@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Text;
 using System.Timers;
-using static System.Net.Mime.MediaTypeNames;
-using Timer = System.Timers.Timer;
+using static System.Net.Mime.MediaTypeNames; //В вижуалке снизу есть кнопка "Выполнить очистку кода"
+using Timer = System.Timers.Timer; //Алиасы для юзингов это дурной тон, здесь это не вредно но лучше так не делать
 
 namespace Hello
 {
-    // Класс с данными о субтитрах.
+    //// Класс с данными о субтитрах.
+    //Такие комментарии к классам излишни и больше путают. Это должно быть понятно либо
+    //из названия (Subtitle), либо такое пишут в xmldocs (почитай)
     public class Text
     {
         public int TimeStart { get; set; }
+        //Время лучше выражать через структуры TimeOnly либо в данном случае TimeSpan
         public int TimeEnd { get; set; }
         public string? Position { get; set; }
+        //Использовать NRT (аннотация "?") чтобы избежать варнингов плохо.
+        //Это пометка означает что свойство может вернуть null и этого стоит ожидать
+        //А это не так. Нужно было создать конструктор, вижуалка их делает сама 
+        //Alt+Enter -> Создать конструктор
+
+        //Position и Color было бы разумно представить через enum
         public string? Color { get; set; }
         public string? Words { get; set; }
     }
@@ -22,7 +31,7 @@ namespace Hello
 
         static Text[]? subtitles;
 
-        // Определение позиции выводимого текста.
+        //// Определение позиции выводимого текста.
         public static string GetTextPosition(string line)
         {
             StringBuilder sb = new();
@@ -49,7 +58,7 @@ namespace Hello
             }
         }
 
-        // Определение цвета выводимого текста.
+        //// Определение цвета выводимого текста.
         public static string GetTextColor(string line)
         {
             StringBuilder sb = new();
@@ -78,25 +87,28 @@ namespace Hello
             }
         }
 
-        //Момент начала вывода текста.
+        ////Момент начала вывода текста.
         public static int GetTextTimeStart(string line)
         {
+            //Этот метод сложно читается, лучше было использовать TimeSpan и методы
+            //AddMinutes, AddSeconds
             return int.Parse(line[0].ToString()) * 600
                 + int.Parse(line[1].ToString()) * 60
                 + int.Parse(line[3].ToString()) * 10
                 + int.Parse(line[4].ToString());
         }
 
-        //Конечный момент вывода текста.
+        ////Конечный момент вывода текста.
         public static int GetTextTimeEnd(string line)
         {
+            //То же что выше
             return int.Parse(line[8].ToString()) * 600
                 + int.Parse(line[9].ToString()) * 60
                 + int.Parse(line[11].ToString()) * 10
                 + int.Parse(line[12].ToString());
         }
 
-        //Определение выводимого текста.
+        ////Определение выводимого текста.
         public static string GetText(string line)
         {
             StringBuilder sb = new();
@@ -120,11 +132,12 @@ namespace Hello
             return sb.ToString();
         }
 
-        // Установка цвета текста в консоли.
+        //// Установка цвета текста в консоли.
         public static void SetTextColorInConsole(Text text)
         {
             switch (text.Color)
             {
+                //Это было бы проще представить через switch-выражение (switch-expression)
                 case "Red":
                     Console.ForegroundColor = ConsoleColor.Red;
                     break;
@@ -146,18 +159,20 @@ namespace Hello
             }
         }
 
-        // Установка позиции и действие на ней (вывод текста
-        // определённого цвета или очистка позиции).
+        //// Установка позиции и действие на ней (вывод текста
+        //// определённого цвета или очистка позиции).
         public static void TextOutput(Text text, string action)
         {
             int height = 20;
             int width = 90;
 
+            //Очень много повторяющегося кода
             if (text.Position == "Bottom")
             {
                 SetTextColorInConsole(text);
                 ScreenWindow();
                 Console.SetCursorPosition(width / 2 - text.Words.Length / 2, height);
+                //Здесь тебя кусают за жопу твои NRT
                 DoAction(text, action);
             }
             else if (text.Position == "Top")
@@ -183,7 +198,9 @@ namespace Hello
             }
         }
 
-        // Вывод текста или очистка позиции
+        //// Вывод текста или очистка позиции
+        //Одно из худших возможных названий для метода. 
+        //Оно не объясняет ничего.
         public static void DoAction(Text text, string action)
         {
             if (action == "Write")
@@ -192,10 +209,12 @@ namespace Hello
             }
             else if (action == "Clear")
             {
+                //Это больно читать, поищи какие есть конструкторы у string
+                //Там есть конструктор для одного символа повторяющегося много раз
                 Console.Write("                                                                     ");
             }
         }
-
+        //Названия методов - глаголы, действия
         public static void ScreenWindow()
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -268,6 +287,16 @@ namespace Hello
                 subtitles[i].Position = GetTextPosition(file[i]);
                 subtitles[i].Color = GetTextColor(file[i]);
                 subtitles[i].Words = GetText(file[i]);
+
+                //Для этого существует конструктор без параметров ->
+                subtitles[i] = new()
+                {
+                    TimeStart = GetTextTimeStart(file[i]),
+                    TimeEnd = GetTextTimeEnd(file[i]),
+                    Position = GetTextPosition(file[i]),
+                    Color = GetTextColor(file[i]),
+                    Words = GetText(file[i]),
+                };
             }
 
             SetTimer();
